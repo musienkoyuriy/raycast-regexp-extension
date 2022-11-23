@@ -1,5 +1,6 @@
 import { List, ActionPanel, Action } from '@raycast/api'
 import { nanoid } from 'nanoid'
+import { useEffect, useState } from 'react'
 import useExpressionsStore from './hooks/useExpressionsStore'
 import { MappedExpression } from './types'
 
@@ -13,6 +14,7 @@ function ExpressionItemActions({ regexp }: { regexp: string }) {
     </ActionPanel.Section>
   </ActionPanel>
 }
+
 
 const ZipCodesList = ({ expressions }: { expressions: MappedExpression[] }) => {
   return <List>
@@ -38,10 +40,29 @@ function ZipCodeItemActions({ expressions }: { expressions: MappedExpression[] }
 
 export default function Command() {
   const { defaultExpressions, zipCodesExpressions } = useExpressionsStore()
+  const [search, setSearch] = useState<string>("")
+  const [filteredExpressions, setFilteredExpressions] = useState<MappedExpression[]>(defaultExpressions)
+
+  useEffect(() => {
+    if (search.trim() === "") {
+      setFilteredExpressions(defaultExpressions);
+      return;
+    }
+    setFilteredExpressions(
+      defaultExpressions.filter((expression: MappedExpression) => {
+        return (
+          expression.category.toLowerCase().includes(search.toLowerCase()) ||
+          expression.name.toLowerCase().includes(search.toLowerCase())
+        )
+      })
+    )
+  }, [search, defaultExpressions])
 
   return (
-    <List>
-      {defaultExpressions?.map(item => (
+    <List
+      filtering={true}
+      onSearchTextChange={setSearch}>
+      {filteredExpressions?.map(item => (
         <List.Item
           key={item.id}
           title={item.name}
