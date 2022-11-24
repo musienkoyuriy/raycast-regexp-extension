@@ -60,7 +60,7 @@ export default function Command() {
 
   return (
     <List
-      filtering={true}
+      filtering={false}
       onSearchTextChange={setSearch}>
       {filteredExpressions?.map(item => (
         <List.Item
@@ -73,7 +73,6 @@ export default function Command() {
       ))}
       {
         zipCodesExpressions.length && <List.Item
-          key={nanoid()}
           title={"Zip Codes"}
           accessories={[{ text: "Zip Codes" }]}
           actions={<ZipCodeItemActions expressions={zipCodesExpressions} />}
