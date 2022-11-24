@@ -24,9 +24,10 @@ const flatExpressions = (
 };
 
 function processExpressionVariations(expressionItem: ExpressionItem): MappedExpression[] {
-  return expressionItem.variations.map(({ name, regexp }) => ({
+  return expressionItem.variations.map(({ name, regexp, link }) => ({
     name,
     regexp,
+    link,
     category: expressionItem.displayName,
     id: nanoid(5),
   }));

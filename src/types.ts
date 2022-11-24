@@ -1,6 +1,7 @@
 export type Variation = {
   name: string;
   regexp: string;
+  link?: string;
 };
 
 export type ExpressionItem = {
@@ -13,5 +14,6 @@ export type MappedExpression = {
   category: string;
   name: string;
   regexp: string;
+  link?: string;
   id: string;
 };

@@ -1,20 +1,19 @@
-import { List, ActionPanel, Action } from '@raycast/api'
+import { List, ActionPanel, Action, Icon } from '@raycast/api'
 import { nanoid } from 'nanoid'
 import { useEffect, useState } from 'react'
 import useExpressionsStore from './hooks/useExpressionsStore'
 import { MappedExpression } from './types'
 
-function ExpressionItemActions({ regexp }: { regexp: string }) {
+function ExpressionItemActions({ regexp, link }: { regexp: string, link?: string }) {
   return <ActionPanel>
     <ActionPanel.Section>
       <Action.CopyToClipboard content={regexp} title="Copy regexp.." />
     </ActionPanel.Section>
-    <ActionPanel.Section>
-      <Action.OpenInBrowser url='https//www.youtube.com' title="Show example in browser" />
-    </ActionPanel.Section>
+    {link && <ActionPanel.Section>
+      <Action.OpenInBrowser url={link} title="Show example in browser" />
+    </ActionPanel.Section>}
   </ActionPanel>
 }
-
 
 const ZipCodesList = ({ expressions }: { expressions: MappedExpression[] }) => {
   return <List>
@@ -66,13 +65,15 @@ export default function Command() {
         <List.Item
           key={item.id}
           title={item.name}
+          icon={Icon.Bubble}
           subtitle={item.category}
           accessories={[{ text: `${item.category}` }]}
-          actions={<ExpressionItemActions regexp={item.regexp} />}
+          actions={<ExpressionItemActions regexp={item.regexp} link={item.link} />}
         />
       ))}
       {
         zipCodesExpressions.length && <List.Item
+          key={nanoid()}
           title={"Zip Codes"}
           accessories={[{ text: "Zip Codes" }]}
           actions={<ZipCodeItemActions expressions={zipCodesExpressions} />}
