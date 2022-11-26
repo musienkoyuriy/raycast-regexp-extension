@@ -30,7 +30,6 @@ export default function Command() {
   }, [search, defaultExpressions]);
 
   useEffect(() => {
-    console.log('selectedCategory', selectedCategory)
     const expressionsToDisplay = selectedCategory === 'all' ?
       defaultExpressions :
       defaultExpressions.filter(
