@@ -1,46 +1,18 @@
-import { List, ActionPanel, Action, Icon } from '@raycast/api'
-import { nanoid } from 'nanoid'
-import { useEffect, useState } from 'react'
-import useExpressionsStore from './hooks/useExpressionsStore'
-import { MappedExpression } from './types'
-
-function ExpressionItemActions({ regexp, link }: { regexp: string, link?: string }) {
-  return <ActionPanel>
-    <ActionPanel.Section>
-      <Action.CopyToClipboard content={regexp} title="Copy regexp.." />
-    </ActionPanel.Section>
-    {link && <ActionPanel.Section>
-      <Action.OpenInBrowser url={link} title="Show example in browser" />
-    </ActionPanel.Section>}
-  </ActionPanel>
-}
-
-const ZipCodesList = ({ expressions }: { expressions: MappedExpression[] }) => {
-  return <List>
-    {expressions.map(item => {
-      return <List.Item
-        key={item.id}
-        title={item.name}
-        subtitle={item.category}
-        accessories={[{ text: `${item.category}` }]}
-        actions={<ExpressionItemActions regexp={item.regexp} />}
-      />
-    })}
-  </List>
-}
-
-function ZipCodeItemActions({ expressions }: { expressions: MappedExpression[] }) {
-  return <ActionPanel>
-    <Action.Push
-      title="Show zip codes"
-      target={<ZipCodesList expressions={expressions} />} />
-  </ActionPanel>
-}
+import { List, Icon } from '@raycast/api';
+import { nanoid } from 'nanoid';
+import { useEffect, useState } from 'react';
+import ExpressionItemActions from './components/actions/ExpressionItemActions';
+import ZipCodeItemActions from './components/actions/ZipCodeItemActions';
+import CategoriesDropdown from './components/CategoriesDropdown';
+import useExpressionsStore from './hooks/useExpressionsStore';
+import { iconsMap } from './icons';
+import { MappedExpression } from './types';
 
 export default function Command() {
-  const { defaultExpressions, zipCodesExpressions } = useExpressionsStore()
-  const [search, setSearch] = useState<string>("")
-  const [filteredExpressions, setFilteredExpressions] = useState<MappedExpression[]>(defaultExpressions)
+  const { defaultExpressions, zipCodesExpressions, categories } = useExpressionsStore();
+  const [search, setSearch] = useState<string>("");
+  const [filteredExpressions, setFilteredExpressions] = useState<MappedExpression[]>(defaultExpressions);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   useEffect(() => {
     if (search.trim() === "") {
@@ -50,31 +22,54 @@ export default function Command() {
     setFilteredExpressions(
       defaultExpressions.filter((expression: MappedExpression) => {
         return (
-          expression.category.toLowerCase().includes(search.toLowerCase()) ||
+          expression.displayName.toLowerCase().includes(search.toLowerCase()) ||
           expression.name.toLowerCase().includes(search.toLowerCase())
-        )
+        );
       })
     )
-  }, [search, defaultExpressions])
+  }, [search, defaultExpressions]);
+
+  useEffect(() => {
+    console.log('selectedCategory', selectedCategory)
+    const expressionsToDisplay = selectedCategory === 'all' ?
+      defaultExpressions :
+      defaultExpressions.filter(
+        (expression: MappedExpression) => expression.category === selectedCategory
+      );
+
+    setFilteredExpressions(expressionsToDisplay);
+  }, [selectedCategory, defaultExpressions]);
+
+  function handleCategoryChange(category: string) {
+    setSelectedCategory(category);
+  }
 
   return (
     <List
       filtering={false}
-      onSearchTextChange={setSearch}>
-      {filteredExpressions?.map(item => (
+      onSearchTextChange={setSearch}
+      searchBarAccessory={
+        <CategoriesDropdown
+          categories={categories}
+          onCategoryChange={
+            (newCategory: string) => handleCategoryChange(newCategory)
+          } />
+      }>
+      {filteredExpressions.map(item =>
         <List.Item
           key={item.id}
           title={item.name}
-          icon={Icon.Bubble}
-          subtitle={item.category}
-          accessories={[{ text: `${item.category}` }]}
+          icon={iconsMap.get(item.category)}
+          subtitle={item.displayName}
+          accessories={[{ text: item.displayName }]}
           actions={<ExpressionItemActions regexp={item.regexp} link={item.link} />}
         />
-      ))}
+      )}
       {
-        zipCodesExpressions.length && <List.Item
+        (zipCodesExpressions.length && 'Zip Codes'.toLowerCase().includes(search.toLowerCase())) && <List.Item
           key={nanoid()}
           title={"Zip Codes"}
+          icon={Icon.BarCode}
           accessories={[{ text: "Zip Codes" }]}
           actions={<ZipCodeItemActions expressions={zipCodesExpressions} />}
         />

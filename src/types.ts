@@ -10,8 +10,14 @@ export type ExpressionItem = {
   variations: Variation[];
 };
 
+export type Category = {
+  shortname: string;
+  displayName: string;
+};
+
 export type MappedExpression = {
   category: string;
+  displayName: string;
   name: string;
   regexp: string;
   link?: string;

@@ -2,24 +2,40 @@ import { useState, useEffect } from "react";
 import expressionsJSON from "../../assets/expressions.json";
 import useMemoizedFn from "./useMemoizedFn";
 import { nanoid } from "nanoid";
-import { ExpressionItem, MappedExpression } from "../types";
+import { Category, ExpressionItem, MappedExpression } from "../types";
 
 const flatExpressions = (
   expressions: ExpressionItem[]
-): { zipCodesExpressions: MappedExpression[]; defaultExpressions: MappedExpression[] } => {
-  const mappedExpressions: MappedExpression[] = [];
-  const mappedZipcodes: MappedExpression[] = [];
+): {
+  zipCodesExpressions: MappedExpression[];
+  defaultExpressions: MappedExpression[];
+  categories: Category[];
+} => {
+  const defaultExpressions: MappedExpression[] = [];
+  const zipCodesExpressions: MappedExpression[] = [];
+  const categories: Category[] = [];
 
   for (const expression of expressions) {
+    categories.push({
+      shortname: expression.category,
+      displayName: expression.displayName,
+    });
     if (expression.category !== "zipcode") {
-      mappedExpressions.push(...processExpressionVariations(expression));
+      defaultExpressions.push(...processExpressionVariations(expression));
     } else {
-      mappedZipcodes.push(...processExpressionVariations(expression));
+      zipCodesExpressions.push(...processExpressionVariations(expression));
     }
   }
   return {
-    defaultExpressions: mappedExpressions,
-    zipCodesExpressions: mappedZipcodes,
+    defaultExpressions,
+    zipCodesExpressions,
+    categories: [
+      {
+        shortname: "all",
+        displayName: "All",
+      },
+      ...categories,
+    ],
   };
 };
 
@@ -28,7 +44,8 @@ function processExpressionVariations(expressionItem: ExpressionItem): MappedExpr
     name,
     regexp,
     link,
-    category: expressionItem.displayName,
+    category: expressionItem.category,
+    displayName: expressionItem.displayName,
     id: nanoid(5),
   }));
 }
@@ -36,17 +53,21 @@ function processExpressionVariations(expressionItem: ExpressionItem): MappedExpr
 export default function useExpressionsStore(): {
   zipCodesExpressions: MappedExpression[];
   defaultExpressions: MappedExpression[];
+  categories: Category[];
 } {
   const [expressions, setExpressions] = useState<MappedExpression[]>([]);
   const [zipCodes, setZipCodes] = useState<MappedExpression[]>([]);
-
+  const [categories, setCategories] = useState<Category[]>([]);
   const flatRegexps = useMemoizedFn(flatExpressions);
 
   useEffect(() => {
-    const { zipCodesExpressions, defaultExpressions } = flatRegexps(expressionsJSON as unknown as ExpressionItem[]);
+    const { zipCodesExpressions, defaultExpressions, categories } = flatRegexps(
+      expressionsJSON as unknown as ExpressionItem[]
+    );
     setExpressions(defaultExpressions as unknown as MappedExpression[]);
     setZipCodes(zipCodesExpressions as unknown as MappedExpression[]);
+    setCategories(categories);
   }, []);
 
-  return { zipCodesExpressions: zipCodes, defaultExpressions: expressions };
+  return { zipCodesExpressions: zipCodes, defaultExpressions: expressions, categories };
 }
