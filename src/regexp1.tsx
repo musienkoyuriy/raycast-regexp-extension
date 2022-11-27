@@ -1,12 +1,32 @@
-import { List, Icon } from '@raycast/api';
+import { List, Icon, ActionPanel, Action } from '@raycast/api';
 import { nanoid } from 'nanoid';
 import { useEffect, useState } from 'react';
-import ExpressionItemActions from './components/actions/ExpressionItemActions';
-import ZipCodeItemActions from './components/actions/ZipCodeItemActions';
 import CategoriesDropdown from './components/CategoriesDropdown';
+import ZipCodesList from './components/ZipCodeList';
 import useExpressionsStore from './hooks/useExpressionsStore';
 import { iconsMap } from './icons';
 import { MappedExpression } from './types';
+
+export function ExpressionItemActions({ regexp, link }: { regexp: string, link?: string }) {
+  return <ActionPanel>
+    <ActionPanel.Section>
+      <Action.CopyToClipboard content={regexp} title="Copy regexp.." />
+    </ActionPanel.Section>
+    {link && <ActionPanel.Section>
+      <Action.OpenInBrowser url={link} title="Show example in browser" />
+    </ActionPanel.Section>}
+  </ActionPanel>
+}
+
+function ZipCodeItemActions({ expressions }: {
+  expressions: MappedExpression[]
+}) {
+  return <ActionPanel>
+    <Action.Push
+      title="Show zip codes"
+      target={<ZipCodesList expressions={expressions} />} />
+  </ActionPanel>
+}
 
 export default function Command() {
   const { defaultExpressions, zipCodesExpressions, categories } = useExpressionsStore();
@@ -22,12 +42,13 @@ export default function Command() {
     setFilteredExpressions(
       defaultExpressions.filter((expression: MappedExpression) => {
         return (
-          expression.displayName.toLowerCase().includes(search.toLowerCase()) ||
-          expression.name.toLowerCase().includes(search.toLowerCase())
+          (expression.displayName.toLowerCase().includes(search.toLowerCase()) ||
+            expression.name.toLowerCase().includes(search.toLowerCase())) &&
+          (expression.category === selectedCategory || selectedCategory === 'all')
         );
       })
     )
-  }, [search, defaultExpressions]);
+  }, [search, defaultExpressions, selectedCategory]);
 
   useEffect(() => {
     const expressionsToDisplay = selectedCategory === 'all' ?
@@ -40,6 +61,9 @@ export default function Command() {
   }, [selectedCategory, defaultExpressions]);
 
   function handleCategoryChange(category: string) {
+    if (category === selectedCategory) {
+      return;
+    }
     setSelectedCategory(category);
   }
 
