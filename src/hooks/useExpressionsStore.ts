@@ -74,12 +74,14 @@ export default function useExpressionsStore(): {
   const [categories, setCategories] = useState<Category[]>([]);
   const flatRegexps = useMemoizedFn(flatExpressions);
 
-  const { zipCodesExpressions, defaultExpressions, regexpCategories } = flatRegexps(
-    expressionsJSON as unknown as ExpressionItem[]
-  );
-  setExpressions(defaultExpressions as unknown as MappedExpression[]);
-  setZipCodes(zipCodesExpressions as unknown as MappedExpression[]);
-  setCategories(categories);
+  useEffect(() => {
+    const { zipCodesExpressions, defaultExpressions, regexpCategories } = flatRegexps(
+      expressionsJSON as unknown as ExpressionItem[]
+    );
+    setExpressions(defaultExpressions as unknown as MappedExpression[]);
+    setZipCodes(zipCodesExpressions as unknown as MappedExpression[]);
+    setCategories(regexpCategories);
+  }, []);
 
-  return { zipCodesExpressions: zipCodes, defaultExpressions: expressions, categories: regexpCategories };
+  return { zipCodesExpressions: zipCodes, defaultExpressions: expressions, categories };
 }
