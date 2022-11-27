@@ -19,7 +19,7 @@ export type MappedExpression = {
   category: string;
   displayName: string;
   name: string;
-  regexp: string;
+  regexp?: string;
   link?: string;
   id: string;
 };

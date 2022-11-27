@@ -11,8 +11,8 @@ const flatExpressions = (
   defaultExpressions: MappedExpression[];
   categories: Category[];
 } => {
-  const defaultExpressions: MappedExpression[] = [];
-  const zipCodesExpressions: MappedExpression[] = [];
+  let defaultExpressions: MappedExpression[] = [];
+  let zipCodesExpressions: MappedExpression[] = [];
   const categories: Category[] = [];
 
   for (const expression of expressions) {
@@ -21,10 +21,24 @@ const flatExpressions = (
       displayName: expression.displayName,
     });
     if (expression.category !== "zipcode") {
-      defaultExpressions.push(...processExpressionVariations(expression));
+      defaultExpressions = [...defaultExpressions, ...processExpressionVariations(expression)];
     } else {
-      zipCodesExpressions.push(...processExpressionVariations(expression));
+      zipCodesExpressions = [...zipCodesExpressions, ...processExpressionVariations(expression)];
     }
+  }
+
+  if (zipCodesExpressions.length) {
+    defaultExpressions = [
+      ...defaultExpressions,
+      ...[
+        {
+          name: "Zip Codes",
+          category: "zipcode",
+          displayName: "Zip Codes",
+          id: nanoid(5),
+        },
+      ],
+    ];
   }
   return {
     defaultExpressions,
