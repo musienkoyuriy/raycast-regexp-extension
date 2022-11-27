@@ -4,7 +4,7 @@ import { Category } from "../types";
 export default function CategoriesDropdown({ categories, onCategoryChange }: {
   categories: Category[];
   onCategoryChange: (newCategory: string) => void
-}) {
+}): JSX.Element {
   return <List.Dropdown
     tooltip="Select category"
     storeValue={false}

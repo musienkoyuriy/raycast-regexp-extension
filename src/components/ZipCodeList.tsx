@@ -4,7 +4,7 @@ import { ExpressionItemActions } from "../regexp1";
 
 export default function ZipCodesList({ expressions }: {
   expressions: MappedExpression[]
-}) {
+}): JSX.Element {
   return <List>
     {expressions.map(item => {
       return <List.Item

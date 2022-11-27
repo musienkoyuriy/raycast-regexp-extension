@@ -6,7 +6,7 @@ import useExpressionsStore from './hooks/useExpressionsStore';
 import { iconsMap } from './icons';
 import { MappedExpression } from './types';
 
-export function ExpressionItemActions({ regexp, link }: { regexp: string, link?: string }) {
+export function ExpressionItemActions({ regexp, link }: { regexp: string, link?: string }): JSX.Element {
   return <ActionPanel>
     <ActionPanel.Section>
       <Action.CopyToClipboard content={regexp} title="Copy regexp.." />
@@ -19,7 +19,7 @@ export function ExpressionItemActions({ regexp, link }: { regexp: string, link?:
 
 function ZipCodeItemActions({ expressions }: {
   expressions: MappedExpression[]
-}) {
+}): JSX.Element {
   return <ActionPanel>
     <Action.Push
       title="Show zip codes"
