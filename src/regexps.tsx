@@ -1,5 +1,5 @@
-import { List, ActionPanel, Action } from '@raycast/api';
-import { useEffect, useState } from 'react';
+import { List, ActionPanel, Action, clearSearchBar } from '@raycast/api';
+import { useEffect, useState, useCallback } from 'react';
 import CategoriesDropdown from './components/CategoriesDropdown';
 import ZipCodesList from './components/ZipCodeList';
 import useExpressionsStore from './hooks/useExpressionsStore';
@@ -47,12 +47,23 @@ export default function Command() {
     )
   }, [search, defaultExpressions, selectedCategory]);
 
-  function handleCategoryChange(category: string): void {
+  const handleCategoryChange = useCallback((category: string) => {
     if (category === selectedCategory) {
       return;
     }
     setSelectedCategory(category);
-  }
+    console.log('before clear search')
+    setSearch('');
+  }, [selectedCategory])
+
+  useEffect(() => {
+    if (search.trim() != '') {
+      return;
+    }
+    (async () => {
+      await clearSearchBar({ forceScrollToTop: true });
+    })()
+  }, [search])
 
   return (
     <List
