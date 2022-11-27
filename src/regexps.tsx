@@ -1,71 +1,71 @@
-import { List, ActionPanel, Action, clearSearchBar } from '@raycast/api';
-import { useEffect, useState, useCallback } from 'react';
-import CategoriesDropdown from './components/CategoriesDropdown';
-import ZipCodesList from './components/ZipCodeList';
-import useExpressionsStore from './hooks/useExpressionsStore';
-import { iconsMap } from './icons';
-import { MappedExpression } from './types';
+import { List, ActionPanel, Action, clearSearchBar } from "@raycast/api";
+import { useEffect, useState, useCallback } from "react";
+import CategoriesDropdown from "./components/CategoriesDropdown";
+import ZipCodesList from "./components/ZipCodeList";
+import useExpressionsStore from "./hooks/useExpressionsStore";
+import { iconsMap } from "./icons";
+import { MappedExpression } from "./types";
 
-export function ExpressionItemActions({ regexp, link }: {
-  regexp: string,
-  link?: string
-}): JSX.Element {
-  return <ActionPanel>
-    <ActionPanel.Section>
-      <Action.CopyToClipboard content={regexp} title="Copy regexp.." />
-    </ActionPanel.Section>
-    {link && <ActionPanel.Section>
-      <Action.OpenInBrowser url={link} title="Show example in browser" />
-    </ActionPanel.Section>}
-  </ActionPanel>
+export function ExpressionItemActions({ regexp, link }: { regexp: string; link?: string }): JSX.Element {
+  return (
+    <ActionPanel>
+      <ActionPanel.Section>
+        <Action.CopyToClipboard content={regexp} title="Copy regexp.." />
+      </ActionPanel.Section>
+      {link && (
+        <ActionPanel.Section>
+          <Action.OpenInBrowser url={link} title="Show example in browser" />
+        </ActionPanel.Section>
+      )}
+    </ActionPanel>
+  );
 }
 
-function ZipCodeItemActions({ expressions }: {
-  expressions: MappedExpression[]
-}): JSX.Element {
-  return <ActionPanel>
-    <Action.Push
-      title="Show zip codes"
-      target={<ZipCodesList expressions={expressions} />} />
-  </ActionPanel>
+function ZipCodeItemActions({ expressions }: { expressions: MappedExpression[] }): JSX.Element {
+  return (
+    <ActionPanel>
+      <Action.Push title="Show zip codes" target={<ZipCodesList expressions={expressions} />} />
+    </ActionPanel>
+  );
 }
 
 export default function Command() {
   const { defaultExpressions, zipCodesExpressions, categories } = useExpressionsStore();
   const [search, setSearch] = useState<string>("");
   const [filteredExpressions, setFilteredExpressions] = useState<MappedExpression[]>(defaultExpressions);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     setFilteredExpressions(
       defaultExpressions.filter((expression: MappedExpression) => {
         return (
-          (
-            expression.displayName.toLowerCase().includes(search.toLowerCase()) ||
-            expression.name.toLowerCase().includes(search.toLowerCase())
-          ) &&
-          (selectedCategory === 'all' || selectedCategory === expression.category)
+          (expression.displayName.toLowerCase().includes(search.toLowerCase()) ||
+            expression.name.toLowerCase().includes(search.toLowerCase())) &&
+          (selectedCategory === "all" || selectedCategory === expression.category)
         );
       })
-    )
+    );
   }, [search, defaultExpressions, selectedCategory]);
 
-  const handleCategoryChange = useCallback((category: string) => {
-    if (category === selectedCategory) {
-      return;
-    }
-    setSelectedCategory(category);
-    setSearch('');
-  }, [selectedCategory])
+  const handleCategoryChange = useCallback(
+    (category: string) => {
+      if (category === selectedCategory) {
+        return;
+      }
+      setSelectedCategory(category);
+      setSearch("");
+    },
+    [selectedCategory]
+  );
 
   useEffect(() => {
-    if (search.trim() != '') {
+    if (search.trim() != "") {
       return;
     }
     (async () => {
       await clearSearchBar({ forceScrollToTop: true });
-    })()
-  }, [search])
+    })();
+  }, [search]);
 
   return (
     <List
@@ -74,11 +74,11 @@ export default function Command() {
       searchBarAccessory={
         <CategoriesDropdown
           categories={categories}
-          onCategoryChange={
-            (newCategory: string) => handleCategoryChange(newCategory)
-          } />
-      }>
-      {filteredExpressions.map(item =>
+          onCategoryChange={(newCategory: string) => handleCategoryChange(newCategory)}
+        />
+      }
+    >
+      {filteredExpressions.map((item) => (
         <List.Item
           key={item.id}
           title={item.name}
@@ -86,12 +86,14 @@ export default function Command() {
           subtitle={item.displayName}
           accessories={[{ text: item.displayName }]}
           actions={
-            item.category !== 'zipcode' ?
-              <ExpressionItemActions regexp={item.regexp!} link={item.link} /> :
+            item.category !== "zipcode" ? (
+              <ExpressionItemActions regexp={item.regexp!} link={item.link} />
+            ) : (
               <ZipCodeItemActions expressions={zipCodesExpressions} />
+            )
           }
         />
-      )}
+      ))}
     </List>
-  )
+  );
 }
