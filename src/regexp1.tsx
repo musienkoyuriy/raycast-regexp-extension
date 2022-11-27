@@ -47,16 +47,6 @@ export default function Command() {
     )
   }, [search, defaultExpressions, selectedCategory]);
 
-  useEffect(() => {
-    const expressionsToDisplay = selectedCategory === 'all' ?
-      defaultExpressions :
-      defaultExpressions.filter(
-        (expression: MappedExpression) => expression.category === selectedCategory
-      );
-
-    setFilteredExpressions(expressionsToDisplay);
-  }, [selectedCategory, defaultExpressions]);
-
   function handleCategoryChange(category: string): void {
     if (category === selectedCategory) {
       return;
