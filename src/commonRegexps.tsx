@@ -1,10 +1,11 @@
 import { List, ActionPanel, Action, clearSearchBar } from "@raycast/api";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import expressionsJSON from "../assets/expressions.json";
 import CategoriesDropdown from "./components/CategoriesDropdown";
 import ZipCodesList from "./components/ZipCodeList";
-import useExpressionsStore from "./hooks/useExpressionsStore";
 import { iconsMap } from "./icons";
 import { MappedExpression } from "./types";
+import { flatExpressions } from "./utilities";
 
 export function ExpressionItemActions({ regexp, link }: { regexp: string; link?: string }): JSX.Element {
   return (
@@ -30,7 +31,11 @@ function ZipCodeItemActions({ expressions }: { expressions: MappedExpression[] }
 }
 
 export default function Command() {
-  const { defaultExpressions, zipCodesExpressions, categories } = useExpressionsStore();
+  const { defaultExpressions, zipCodesExpressions, regexpCategories } = useMemo(
+    () => flatExpressions(expressionsJSON),
+    [expressionsJSON]
+  );
+
   const [search, setSearch] = useState<string>("");
   const [filteredExpressions, setFilteredExpressions] = useState<MappedExpression[]>(defaultExpressions);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -73,7 +78,7 @@ export default function Command() {
       onSearchTextChange={setSearch}
       searchBarAccessory={
         <CategoriesDropdown
-          categories={categories}
+          categories={regexpCategories}
           onCategoryChange={(newCategory: string) => handleCategoryChange(newCategory)}
         />
       }
