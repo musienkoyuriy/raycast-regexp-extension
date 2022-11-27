@@ -6,7 +6,10 @@ import useExpressionsStore from './hooks/useExpressionsStore';
 import { iconsMap } from './icons';
 import { MappedExpression } from './types';
 
-export function ExpressionItemActions({ regexp, link }: { regexp: string, link?: string }): JSX.Element {
+export function ExpressionItemActions({ regexp, link }: {
+  regexp: string,
+  link?: string
+}): JSX.Element {
   return <ActionPanel>
     <ActionPanel.Section>
       <Action.CopyToClipboard content={regexp} title="Copy regexp.." />
@@ -52,7 +55,6 @@ export default function Command() {
       return;
     }
     setSelectedCategory(category);
-    console.log('before clear search')
     setSearch('');
   }, [selectedCategory])
 
