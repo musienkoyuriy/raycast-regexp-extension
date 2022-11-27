@@ -1,6 +1,6 @@
 import { List } from "@raycast/api";
 import { MappedExpression } from "../types";
-import { ExpressionItemActions } from "../regexps";
+import { ExpressionItemActions } from "../commonRegexps";
 
 export default function ZipCodesList({ expressions }: { expressions: MappedExpression[] }): JSX.Element {
   return (

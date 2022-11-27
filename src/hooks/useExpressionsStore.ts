@@ -9,7 +9,7 @@ const flatExpressions = (
 ): {
   zipCodesExpressions: MappedExpression[];
   defaultExpressions: MappedExpression[];
-  categories: Category[];
+  regexpCategories: Category[];
 } => {
   let defaultExpressions: MappedExpression[] = [];
   let zipCodesExpressions: MappedExpression[] = [];
@@ -43,7 +43,7 @@ const flatExpressions = (
   return {
     defaultExpressions,
     zipCodesExpressions,
-    categories: [
+    regexpCategories: [
       {
         shortname: "all",
         displayName: "All",
@@ -74,14 +74,12 @@ export default function useExpressionsStore(): {
   const [categories, setCategories] = useState<Category[]>([]);
   const flatRegexps = useMemoizedFn(flatExpressions);
 
-  useEffect(() => {
-    const { zipCodesExpressions, defaultExpressions, categories } = flatRegexps(
-      expressionsJSON as unknown as ExpressionItem[]
-    );
-    setExpressions(defaultExpressions as unknown as MappedExpression[]);
-    setZipCodes(zipCodesExpressions as unknown as MappedExpression[]);
-    setCategories(categories);
-  }, []);
+  const { zipCodesExpressions, defaultExpressions, regexpCategories } = flatRegexps(
+    expressionsJSON as unknown as ExpressionItem[]
+  );
+  setExpressions(defaultExpressions as unknown as MappedExpression[]);
+  setZipCodes(zipCodesExpressions as unknown as MappedExpression[]);
+  setCategories(categories);
 
-  return { zipCodesExpressions: zipCodes, defaultExpressions: expressions, categories };
+  return { zipCodesExpressions: zipCodes, defaultExpressions: expressions, categories: regexpCategories };
 }
