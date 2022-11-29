@@ -1,4 +1,4 @@
-import { List } from "@raycast/api";
+import { Icon, List } from "@raycast/api";
 import { MappedExpression } from "../types";
 import { ExpressionItemActions } from "../commonRegexps";
 
@@ -10,7 +10,7 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
           <List.Item
             key={item.id}
             title={item.name}
-            subtitle={item.displayName}
+            icon={Icon.BarCode}
             accessories={[{ text: `${item.displayName}` }]}
             actions={<ExpressionItemActions regexp={item.regexp!} />}
           />
