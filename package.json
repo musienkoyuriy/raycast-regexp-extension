@@ -1,19 +1,20 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "common-regexps",
-  "title": "Common RegExps",
-  "description": "Quckly find the most common JS regular expressions",
+  "name": "search-regexp",
+  "title": "Regular expressions",
+  "description": "This extension allows you to quckly find the most common JS regular expressions.",
   "icon": "command-icon.png",
   "author": "musienkoyuriy",
   "categories": [
-    "Productivity"
+    "Productivity",
+    "Web"
   ],
   "license": "MIT",
   "commands": [
     {
-      "name": "commonRegexps",
-      "title": "Common RegExps",
-      "description": "This extension allows you to quckly find the most common JS regular expressions.",
+      "name": "searchRegexp",
+      "title": "Search RegExp",
+      "description": "Common Regular Expressions.",
       "mode": "view"
     }
   ],
