@@ -21,5 +21,11 @@ export type MappedExpression = {
   name: string;
   regexp?: string;
   link?: string;
+  description?: string;
   id: string;
+};
+
+export type ZipCodeResponse = {
+  name: string;
+  key: string;
 };
