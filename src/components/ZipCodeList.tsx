@@ -13,9 +13,9 @@ type ZipCodesMap = {
 };
 
 enum Loading {
-  IDLE = 'idle',
-  LOADING = 'loading',
-  LOADED = 'loaded'
+  IDLE = "idle",
+  LOADING = "loading",
+  LOADED = "loaded",
 }
 
 export default function ZipCodesList({ expressions }: { expressions: MappedExpression[] }): JSX.Element {
@@ -23,7 +23,7 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
   const [zipCodes, setZipcodes] = useState<MappedExpression[] | null>(null);
   const [filteredZipCodes, setFilteredZipCodes] = useState<MappedExpression[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [error, setError] = useState<Error>();
+  const [failed, setFailed] = useState<boolean>(false);
   const promises: Promise<any>[] = [];
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
       try {
         zipCodesApiResponses = await Promise.all(promises);
       } catch (err) {
-        setError(new Error("Unable to receive Zip code data"));
+        setFailed(true);
         return;
       }
       const mappedResponse: ZipCodesMap = zipCodesApiResponses.reduce((acc: ZipCodesMap, curr) => {
@@ -94,7 +94,7 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
     if (!zipCodes) {
       return;
     }
-    setLoading(loading => loading === Loading.LOADING ? Loading.LOADED : loading);
+    setLoading((loading) => (loading === Loading.LOADING ? Loading.LOADED : loading));
 
     (async () => {
       await LocalStorage.setItem(ZIP_CODES_STORAGE_TOKEN, JSON.stringify(zipCodes));
@@ -106,25 +106,26 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
       if (loading === Loading.IDLE) {
         return;
       }
-      const toastOptions: [Toast.Style, string] | [] = loading === Loading.LOADING ?
-        [Toast.Style.Animated, "Loading..."] :
-        (!(error instanceof Error) && loading === Loading.LOADED) ?
-          [Toast.Style.Success, "Loaded."] :
-          [];
+      const toastOptions: [Toast.Style, string] | [] =
+        loading === Loading.LOADING
+          ? [Toast.Style.Animated, "Loading..."]
+          : !failed && loading === Loading.LOADED
+          ? [Toast.Style.Success, "Loaded."]
+          : [];
 
       const [style, message] = toastOptions;
 
-      toastOptions && await showToast(style!, message!);
+      toastOptions && (await showToast(style!, message!));
     })();
   }, [loading]);
 
   useEffect(() => {
     (async () => {
-      if (error instanceof Error) {
-        await showToast(Toast.Style.Failure, error.message);
+      if (failed) {
+        await showToast(Toast.Style.Failure, "Unable to receive zip codes data.");
       }
     })();
-  }, [error]);
+  }, [failed]);
 
   return (
     <List
