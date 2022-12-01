@@ -110,12 +110,12 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
         loading === Loading.LOADING
           ? [Toast.Style.Animated, "Loading..."]
           : !failed && loading === Loading.LOADED
-          ? [Toast.Style.Success, "Loaded."]
-          : [];
+            ? [Toast.Style.Success, "Loaded."]
+            : [];
 
       const [style, message] = toastOptions;
 
-      toastOptions && (await showToast(style!, message!));
+      toastOptions.length && (await showToast(style!, message!));
     })();
   }, [loading]);
 
