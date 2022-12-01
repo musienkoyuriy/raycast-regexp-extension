@@ -21,7 +21,6 @@
   "dependencies": {
     "@raycast/api": "^1.44.0",
     "got": "^12.5.3",
-    "isomorphic-fetch": "^3.0.0",
     "nanoid": "^4.0.0"
   },
   "devDependencies": {
