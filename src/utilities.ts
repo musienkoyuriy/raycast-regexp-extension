@@ -1,8 +1,12 @@
 import { nanoid } from "nanoid";
 import { Category, ExpressionItem, MappedExpression } from "./types";
 
-export function capitalize(str: string) {
+function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export function capitalizeSentence(sentence: string): string {
+  return sentence.split(" ").map(capitalize).join(" ");
 }
 
 function processExpressionVariations(expressionItem: ExpressionItem): MappedExpression[] {

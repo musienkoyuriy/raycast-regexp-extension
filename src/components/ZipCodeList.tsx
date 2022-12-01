@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Icon, List, LocalStorage } from "@raycast/api";
+import got from "got";
+import { Icon, List, LocalStorage, showToast, Toast } from "@raycast/api";
 import { MappedExpression, ZipCodeResponse } from "../types";
 import { ExpressionItemActions } from "../searchRegexp";
-import got from "got";
-import { capitalize } from "../utilities";
+import { capitalizeSentence } from "../utilities";
 
 const ZIP_CODES_BASE_URL = "https://i18napis.appspot.com/address/data/";
 const ZIP_CODES_STORAGE_TOKEN = "ZIP_CODES";
@@ -12,11 +12,18 @@ type ZipCodesMap = {
   [key: string]: Record<string, string>;
 };
 
+enum Loading {
+  IDLE = 'idle',
+  LOADING = 'loading',
+  LOADED = 'loaded'
+}
+
 export default function ZipCodesList({ expressions }: { expressions: MappedExpression[] }): JSX.Element {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [zipCodes, setZipcodes] = useState<MappedExpression[]>(expressions);
+  const [loading, setLoading] = useState<Loading>(Loading.IDLE);
+  const [zipCodes, setZipcodes] = useState<MappedExpression[] | null>(null);
   const [filteredZipCodes, setFilteredZipCodes] = useState<MappedExpression[]>([]);
   const [search, setSearch] = useState<string>("");
+  const [error, setError] = useState<Error>();
   const promises: Promise<any>[] = [];
 
   useEffect(() => {
@@ -28,21 +35,29 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
         return;
       }
 
-      setLoading(true);
-
-      expressions.forEach(
-        (expression: MappedExpression) => promises.push(got(`${ZIP_CODES_BASE_URL}${expression.name}`))
+      expressions.forEach((expression: MappedExpression) =>
+        promises.push(got(`${ZIP_CODES_BASE_URL}${expression.name}`))
       );
 
-      const zipCodesApiResponses = await Promise.all(promises);
+      let zipCodesApiResponses;
+
+      setLoading(Loading.LOADING);
+
+      try {
+        zipCodesApiResponses = await Promise.all(promises);
+      } catch (err) {
+        setError(new Error("Unable to receive Zip code data"));
+        return;
+      }
       const mappedResponse: ZipCodesMap = zipCodesApiResponses.reduce((acc: ZipCodesMap, curr) => {
         let unserializedResponse;
+
         try {
           unserializedResponse = JSON.parse(curr.body) as ZipCodeResponse;
         } catch (err) {
           unserializedResponse = {} as ZipCodeResponse;
         }
-        const country = capitalize(unserializedResponse.name || "");
+        const country = capitalizeSentence(unserializedResponse.name || "");
         const zipCode = unserializedResponse.key;
 
         return {
@@ -57,12 +72,13 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
           description: mappedResponse[expression.name]?.country || "",
         })) as unknown as MappedExpression[]
       );
-      
-      setLoading(false);
     })();
   }, []);
 
   useEffect(() => {
+    if (!zipCodes) {
+      return;
+    }
     setFilteredZipCodes(
       zipCodes.filter((zipCode) => {
         return (
@@ -75,16 +91,49 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
   }, [zipCodes, search]);
 
   useEffect(() => {
-    setFilteredZipCodes(zipCodes);
+    if (!zipCodes) {
+      return;
+    }
+    setLoading(loading => loading === Loading.LOADING ? Loading.LOADED : loading);
 
     (async () => {
       await LocalStorage.setItem(ZIP_CODES_STORAGE_TOKEN, JSON.stringify(zipCodes));
     })();
   }, [zipCodes]);
 
+  useEffect(() => {
+    (async () => {
+      if (loading === Loading.IDLE) {
+        return;
+      }
+      const toastOptions: [Toast.Style, string] | [] = loading === Loading.LOADING ?
+        [Toast.Style.Animated, "Loading..."] :
+        (!(error instanceof Error) && loading === Loading.LOADED) ?
+          [Toast.Style.Success, "Loaded."] :
+          [];
+
+      const [style, message] = toastOptions;
+
+      toastOptions && await showToast(style!, message!);
+    })();
+  }, [loading]);
+
+  useEffect(() => {
+    (async () => {
+      if (error instanceof Error) {
+        await showToast(Toast.Style.Failure, error.message);
+      }
+    })();
+  }, [error]);
+
   return (
-    <List isLoading={loading} onSearchTextChange={setSearch}>
-      {!loading &&
+    <List
+      filtering={false}
+      searchBarPlaceholder={"Search Zip codes"}
+      navigationTitle="Search Zip codes"
+      onSearchTextChange={setSearch}
+    >
+      {(loading === Loading.LOADED || loading === Loading.IDLE) && filteredZipCodes.length > 0 ? (
         filteredZipCodes.map((item: MappedExpression) => {
           return (
             <List.Item
@@ -96,8 +145,10 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
               actions={<ExpressionItemActions regexp={item.regexp!} />}
             />
           );
-        })}
-      )
+        })
+      ) : (
+        <List.EmptyView title={"Loading zip codes..."} />
+      )}
     </List>
   );
 }

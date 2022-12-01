@@ -23,9 +23,10 @@ export function ExpressionItemActions({ regexp, link }: { regexp: string; link?:
 }
 
 function ZipCodeItemActions({ expressions }: { expressions: MappedExpression[] }): JSX.Element {
+  const memoizedExpressions = useMemo(() => expressions, [expressions]);
   return (
     <ActionPanel>
-      <Action.Push title="Show zip codes" target={<ZipCodesList expressions={expressions} />} />
+      <Action.Push title="Show zip codes" target={<ZipCodesList expressions={memoizedExpressions} />} />
     </ActionPanel>
   );
 }
@@ -75,6 +76,7 @@ export default function Command() {
   return (
     <List
       filtering={false}
+      searchBarPlaceholder={"Search regular expression..."}
       onSearchTextChange={setSearch}
       searchBarAccessory={
         <CategoriesDropdown
