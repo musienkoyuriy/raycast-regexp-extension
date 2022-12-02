@@ -94,7 +94,7 @@ export default function ZipCodesList({ expressions }: { expressions: MappedExpre
     if (!zipCodes) {
       return;
     }
-    setLoading((loading) => (loading === Loading.LOADING ? Loading.LOADED : loading));
+    setLoading((loading: Loading) => (loading === Loading.LOADING ? Loading.LOADED : loading));
 
     (async () => {
       await LocalStorage.setItem(ZIP_CODES_STORAGE_TOKEN, JSON.stringify(zipCodes));
