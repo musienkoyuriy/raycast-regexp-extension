@@ -1,5 +1,5 @@
 import { List, ActionPanel, Action, clearSearchBar } from "@raycast/api";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import expressionsJSON from "../assets/expressions.json";
 import CategoriesDropdown from "./components/CategoriesDropdown";
 import ZipCodesList from "./components/ZipCodeList";
@@ -7,7 +7,7 @@ import { iconsMap } from "./icons";
 import { MappedExpression } from "./types";
 import { flatExpressions } from "./utilities";
 
-export function ExpressionItemActions({ regexp, link }: { regexp: string; link?: string }): JSX.Element {
+export const ExpressionItemActions = memo(({ regexp, link }: { regexp: string; link?: string }): JSX.Element => {
   return (
     <ActionPanel>
       <ActionPanel.Section>
@@ -20,7 +20,7 @@ export function ExpressionItemActions({ regexp, link }: { regexp: string; link?:
       )}
     </ActionPanel>
   );
-}
+})
 
 function ZipCodeItemActions({ expressions }: { expressions: MappedExpression[] }): JSX.Element {
   const memoizedExpressions = useMemo(() => expressions, [expressions]);
