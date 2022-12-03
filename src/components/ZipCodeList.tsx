@@ -13,9 +13,9 @@ type ZipCodesMap = {
 };
 
 enum Loading {
-  IDLE = "idle",
-  LOADING = "loading",
-  LOADED = "loaded",
+  IDLE,
+  LOADING,
+  LOADED
 }
 
 export default function ZipCodesList({ expressions }: { expressions: MappedExpression[] }): JSX.Element {
