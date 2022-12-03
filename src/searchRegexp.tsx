@@ -81,7 +81,7 @@ export default function Command() {
       searchBarAccessory={
         <CategoriesDropdown
           categories={regexpCategories}
-          onCategoryChange={(newCategory: string) => handleCategoryChange(newCategory)}
+          onCategoryChange={handleCategoryChange}
         />
       }
     >
