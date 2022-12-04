@@ -1,3 +1,3 @@
-# regexp1 Changelog
+# searchRegexp Changelog
 
 ## [Initial Version] - 2022-11-22
